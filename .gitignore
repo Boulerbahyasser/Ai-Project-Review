@@ -1,0 +1,31 @@
+# Build
+target/
+*.class
+*.jar
+
+# Sorties generees par l'application
+out/*
+!out/.gitkeep
+
+# Secrets et environnement local
+.env
+*.local.yaml
+
+# Journaux
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.metals/
+.bloop/
+.settings/
+.classpath
+.project
+
+# LaTeX intermediaire
+*.aux
+*.toc
+*.out
+*.synctex.gz
