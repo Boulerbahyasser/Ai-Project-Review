@@ -1,10 +1,23 @@
 package ma.uae.aireviewer.llm.provider;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import ma.uae.aireviewer.configuration.LlmConfig;
 import ma.uae.aireviewer.llm.LlmException;
 import ma.uae.aireviewer.llm.LlmRequest;
+import ma.uae.aireviewer.llm.TokenUsage;
 
-/** Fournisseur distant Mistral. Cle lue dans l'environnement, jamais dans le depot. */
+/**
+ * Fournisseur distant Mistral ({@code https://api.mistral.ai/v1}).
+ *
+ * <p>Son API suit le format compatible OpenAI : la traduction est donc entierement
+ * deleguee a {@link OpenAiChatFormat}. Seuls l'URL et l'authentification par cle
+ * distinguent cette classe du fournisseur local — ce qui illustre le cout reel
+ * d'ajout d'un fournisseur (section 10).
+ *
+ * <p>La cle est lue dans l'environnement par le fournisseur de secrets, jamais
+ * ecrite dans le depot (section 17).
+ */
 public final class MistralProvider extends AbstractHttpLlmProvider {
 
     public MistralProvider(LlmConfig config, String apiKey) {
@@ -22,12 +35,22 @@ public final class MistralProvider extends AbstractHttpLlmProvider {
     }
 
     @Override
-    protected String requestBody(LlmRequest request) {
-        throw new UnsupportedOperationException("TODO : corps JSON de l'API Mistral");
+    protected ObjectNode requestBody(LlmRequest request) {
+        return OpenAiChatFormat.requestBody(request, json.createObjectNode());
     }
 
     @Override
-    protected String extractContent(String responseBody) throws LlmException {
-        throw new UnsupportedOperationException("TODO : extraire le contenu de la reponse Mistral");
+    protected String extractContent(JsonNode response) throws LlmException {
+        return OpenAiChatFormat.content(response);
+    }
+
+    @Override
+    protected TokenUsage extractUsage(JsonNode response) {
+        return OpenAiChatFormat.usage(response);
+    }
+
+    @Override
+    protected String servedModel(JsonNode response, String requested) {
+        return OpenAiChatFormat.servedModel(response, requested);
     }
 }

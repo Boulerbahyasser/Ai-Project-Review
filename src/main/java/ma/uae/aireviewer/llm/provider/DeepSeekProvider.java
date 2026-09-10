@@ -1,10 +1,19 @@
 package ma.uae.aireviewer.llm.provider;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import ma.uae.aireviewer.configuration.LlmConfig;
 import ma.uae.aireviewer.llm.LlmException;
 import ma.uae.aireviewer.llm.LlmRequest;
+import ma.uae.aireviewer.llm.TokenUsage;
 
-/** Fournisseur distant DeepSeek. Illustre l'ajout d'un fournisseur sans impact ailleurs. */
+/**
+ * Fournisseur distant DeepSeek ({@code https://api.deepseek.com/v1}).
+ *
+ * <p>Egalement au format compatible OpenAI. Cette classe existe pour demontrer que
+ * l'ajout d'un troisieme fournisseur ne coute qu'une classe et une fabrique, sans
+ * modifier aucun composant existant.
+ */
 public final class DeepSeekProvider extends AbstractHttpLlmProvider {
 
     public DeepSeekProvider(LlmConfig config, String apiKey) {
@@ -22,12 +31,22 @@ public final class DeepSeekProvider extends AbstractHttpLlmProvider {
     }
 
     @Override
-    protected String requestBody(LlmRequest request) {
-        throw new UnsupportedOperationException("TODO : corps JSON de l'API DeepSeek");
+    protected ObjectNode requestBody(LlmRequest request) {
+        return OpenAiChatFormat.requestBody(request, json.createObjectNode());
     }
 
     @Override
-    protected String extractContent(String responseBody) throws LlmException {
-        throw new UnsupportedOperationException("TODO : extraire le contenu de la reponse DeepSeek");
+    protected String extractContent(JsonNode response) throws LlmException {
+        return OpenAiChatFormat.content(response);
+    }
+
+    @Override
+    protected TokenUsage extractUsage(JsonNode response) {
+        return OpenAiChatFormat.usage(response);
+    }
+
+    @Override
+    protected String servedModel(JsonNode response, String requested) {
+        return OpenAiChatFormat.servedModel(response, requested);
     }
 }

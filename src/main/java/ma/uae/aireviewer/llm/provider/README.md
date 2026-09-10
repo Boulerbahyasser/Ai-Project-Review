@@ -17,16 +17,37 @@ Une classe par fournisseur de modele. Chacune joue **deux patterns a la fois** :
 | `DeepSeekProvider` | DeepSeek, illustre l'ajout d'un fournisseur |
 | `DefaultLlmProviderFactory` | Assemble transport + reessais + cache |
 
-## Les deux seules methodes a ecrire pour un nouveau fournisseur
+## Les methodes a ecrire pour un nouveau fournisseur
 
 ```java
-protected String requestBody(LlmRequest request);       // notre objet -> leur JSON
-protected String extractContent(String responseBody);   // leur JSON   -> notre texte
+protected String     endpoint();                        // son URL
+protected ObjectNode requestBody(LlmRequest request);   // notre objet -> leur JSON
+protected String     extractContent(JsonNode response); // leur JSON   -> notre texte
 ```
 
-Ce sont des fonctions **pures** `String -> String` : elles se testent sans reseau,
-avec une reponse JSON copiee de la documentation du fournisseur. C'est la reponse
-a la question 6 de la section 19.
+Deux points de conception a connaitre :
+
+- `requestBody` retourne un **arbre Jackson**, pas une chaine. C'est volontaire :
+  les prompts contiennent du code source, donc des guillemets, des antislashs et
+  des retours a la ligne. Un corps assemble par concatenation serait du JSON
+  invalide des le premier fichier Java analyse. Le type de retour rend l'erreur
+  impossible.
+- Ces methodes sont **pures** : elles se testent sans reseau, avec une reponse
+  JSON copiee de la documentation du fournisseur. C'est la reponse a la question 6
+  de la section 19.
+
+Deux points optionnels, a redefinir si le fournisseur les renseigne :
+`extractUsage` (jetons consommes) et `servedModel` (modele reellement servi).
+
+## Le format compatible OpenAI est mutualise
+
+`OpenAiChatFormat` porte la traduction du format « chat completions » : Mistral,
+DeepSeek, LM Studio et l'interface compatible d'Ollama le partagent. Les trois
+fournisseurs actuels s'y delegent entierement et ne different que par leur URL et
+leur authentification.
+
+Consequence pratique : n'ecrivez une nouvelle traduction que si le fournisseur
+utilise reellement un autre format.
 
 ## Ajouter un fournisseur (section 10)
 
