@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{booktabs}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\title{Rapport d'evaluation automatique\{\large {{projectName}}}}
+\date{{{analysisDate}}}
+
+\begin{document}
+\maketitle
+
+\section{Identification}
+\begin{tabular}{ll}
+Projet & {{projectName}} \
+Date d'analyse & {{analysisDate}} \
+Configuration & {{configurationSummary}} \
+Modele de langage & {{modelUsed}} \
+\end{tabular}
+
+\section{Synthese des scores}
+{{scoreTable}}
+
+\section{Evaluation detaillee}
+{{sections}}
+
+\section{Synthese generale}
+{{summary}}
+
+\end{document}
