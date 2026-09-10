@@ -30,3 +30,20 @@ interface, remplacement d'un fournisseur sans impact, resilience aux erreurs.
   anti-injection de `security` avant d'entrer dans un prompt.
 - Toute reponse est validee (JSON conforme, score dans les bornes) avant conversion
   en resultat metier.
+
+---
+
+## Implementation apportee par la branche `llm-nearly-done`
+
+Une implementation complete et testee du sous-systeme a ete developpee en
+parallele dans un module autonome, sous le package `com.aireview.llm` :
+fournisseur Ollama, construction de prompts, decoupage de contexte, evaluateur
+resilient, doublure de test, et environ 2700 lignes de tests.
+
+Elle se trouve dans `llm-subsystem/` a la racine du depot, avec sa propre
+documentation (`ARCHITECTURE.md`, `Tasks.md`).
+
+**Decision d'integration en attente** : ce module et le present package couvrent
+le meme perimetre avec des contrats differents (`LLMProvider.call()` d'un cote,
+`LlmProvider.ask()` de l'autre). L'un des deux doit devenir la reference, et le
+choix doit etre consigne dans `docs/DECISIONS.md`.
