@@ -7,17 +7,17 @@ llm:
   baseUrl: http://localhost:1234/v1
   apiKeyEnvVar: LLM_API_KEY    # nom de la variable d'env, pas la valeur
   timeoutSeconds: 60
-  maxRetries: 3
+  maxRetries: 1                # 1 = aucune reprise ; passer a 3 quand RetryingLlmProvider sera implemente
   maxOutputTokens: 2048
   temperature: 0.1
-  cacheEnabled: true
+  maxCharsPerRequest: 40000
+  maxFilesPerRequest: 12
+  cacheEnabled: false          # remettre a true quand CachingLlmProvider sera implemente
   fallbackProviderId: null
 
 analysis:
   criteriaProfile: default
   maxFileSizeKb: 256
-  maxFilesPerRequest: 12
-  maxCharsPerRequest: 40000
   includeGlobs:
     - "**/*.java"
     - "**/pom.xml"

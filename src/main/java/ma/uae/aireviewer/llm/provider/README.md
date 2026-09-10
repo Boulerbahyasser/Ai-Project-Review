@@ -15,7 +15,9 @@ Une classe par fournisseur de modele. Chacune joue **deux patterns a la fois** :
 | `LocalOpenAiCompatibleProvider` | Modele local (LM Studio / Ollama). **Fournisseur par defaut** |
 | `MistralProvider` | Mistral, cle lue dans l'environnement |
 | `DeepSeekProvider` | DeepSeek, illustre l'ajout d'un fournisseur |
-| `DefaultLlmProviderFactory` | Assemble transport + reessais + cache |
+| `LocalOpenAiCompatibleProviderFactory` | Fabrique du modele local : aucune cle |
+| `MistralProviderFactory` | Exige la cle, et le signale a la construction |
+| `DeepSeekProviderFactory` | Idem |
 
 ## Les methodes a ecrire pour un nouveau fournisseur
 
@@ -53,7 +55,11 @@ utilise reellement un autre format.
 
 1. Une classe qui etend `AbstractHttpLlmProvider` et implemente les deux methodes.
 2. Une fabrique qui repond `supports("son-id")`.
-3. Une ligne dans la liste d'assemblage. **Aucun fichier existant modifie.**
+3. Une ligne dans la liste passee a `LlmProviderAssembler`. **Aucun fichier existant modifie.**
+
+L'empilement des decorateurs n'est pas du ressort des fabriques : elles rendent le
+transport nu, et `LlmProviderAssembler` ajoute repli, reprise et cache une seule
+fois pour tous. Aucune fabrique ne peut donc se tromper d'ordre.
 
 ## Regles absolues
 
