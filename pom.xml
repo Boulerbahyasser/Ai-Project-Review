@@ -131,6 +131,13 @@
                 <version>3.3.0</version>
                 <configuration>
                     <mainClass>com.aireview.llm.LLMVisualTest</mainClass>
+                    <!--
+                        LLMVisualTest vit dans src/test : le harnais de
+                        demonstration est du code de test, pas du code livre.
+                        exec:java utilise par defaut le classpath d'execution,
+                        d'ou cette portee explicite.
+                    -->
+                    <classpathScope>test</classpathScope>
                 </configuration>
             </plugin>
         </plugins>
