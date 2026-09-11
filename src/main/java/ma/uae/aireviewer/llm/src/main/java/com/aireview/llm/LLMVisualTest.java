@@ -1,5 +1,7 @@
 package com.aireview.llm;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -200,12 +202,12 @@ public class LLMVisualTest {
                 List.of(EvaluationCriterion.ARCHITECTURE));
 
         // ------------------------------------------------------------------
-        // Run 2: Good code (all criteria)
+        // Run 2: Good code (all criteria) — also writes evaluation.tex
         // ------------------------------------------------------------------
         printSectionHeader("TEST 2: Well-Structured Code (All Criteria)");
         print("  Source code is genuinely well-designed.");
         print("  Expected: higher scores than the injection payload run.\n");
-        runEvaluation(chunked, "WellStructuredProject", GOOD_CODE_SOURCE,
+        runEvaluationAndReport(chunked, "WellStructuredProject", GOOD_CODE_SOURCE,
                 List.of(EvaluationCriterion.values()));
 
         printFooter();
@@ -231,8 +233,58 @@ public class LLMVisualTest {
 
         } catch (LLMException e) {
             printError("Evaluation failed: " + e.getMessage());
-            printError("  → Is Ollama running? Try: ollama serve");
-            printError("  → Is the model pulled? Try: ollama pull " + MODEL);
+            printError("  \u2192 Is Ollama running? Try: ollama serve");
+            printError("  \u2192 Is the model pulled? Try: ollama pull " + MODEL);
+        }
+    }
+
+    /**
+     * Runs an evaluation and, on success, generates an {@code evaluation.tex} report.
+     *
+     * <p>PATTERN: Strategy — {@link LatexReportBuilder} is the document-production strategy;
+     * the evaluation engine is unaware of it.
+     */
+    private static void runEvaluationAndReport(ChunkedEvaluator chunked, String projectName,
+                                               String source, List<EvaluationCriterion> criteria) {
+        long start = System.currentTimeMillis();
+        try {
+            EvaluationResult result = chunked.evaluate(projectName, source, MODEL, criteria);
+            long elapsed = System.currentTimeMillis() - start;
+
+            print("  " + result.summary());
+            print("  Duration: " + elapsed + " ms\n");
+
+            for (CriterionResult cr : result.results()) {
+                printCriterionResult(cr);
+            }
+
+            generateReport(result);
+
+        } catch (LLMException e) {
+            printError("Evaluation failed: " + e.getMessage());
+            printError("  \u2192 Is Ollama running? Try: ollama serve");
+            printError("  \u2192 Is the model pulled? Try: ollama pull " + MODEL);
+        }
+    }
+
+    /**
+     * Generates an {@code evaluation.tex} report from the supplied {@link EvaluationResult}.
+     *
+     * <p>Uses {@link LatexReportBuilder} (Builder pattern) to produce the LaTeX document.
+     * On success, prints the output path; on failure, prints a diagnostic to stderr.
+     */
+    private static void generateReport(EvaluationResult result) {
+        printSectionHeader("LaTeX Report Generation");
+        Path out = Path.of("evaluation.tex");
+        try {
+            Path written = LatexReportBuilder.forResult(result)
+                    .withModel(MODEL)
+                    .withOutputPath(out)
+                    .buildAndWrite();
+            print("  [OK] Report written to: " + written.toAbsolutePath());
+            print("  Compile with: pdflatex " + written.getFileName());
+        } catch (IOException e) {
+            printError("Could not write LaTeX report: " + e.getMessage());
         }
     }
 
