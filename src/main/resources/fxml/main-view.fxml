@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ma.uae.aireviewer.ui.controller.MainController"
+            prefWidth="1200" prefHeight="760">
+
+    <top>
+        <VBox spacing="10" styleClass="top-area">
+            <padding><Insets top="16" right="18" bottom="12" left="18"/></padding>
+            <Label text="AI Project Reviewer" styleClass="title"/>
+            <ToolBar>
+                <Button text="Select Project" onAction="#handleSelectProject" styleClass="primary-button"/>
+                <Separator orientation="VERTICAL"/>
+                <Label text="Project:"/>
+                <Label fx:id="projectPathLabel" text="No project selected" styleClass="muted-label"/>
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+
+            <Tab text="Analysis">
+                <SplitPane dividerPositions="0.42">
+                    <items>
+                        <VBox spacing="10">
+                            <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                            <Label text="Project Files" styleClass="section-title"/>
+                            <TreeView fx:id="projectTreeView" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+
+                        <ScrollPane fitToWidth="true">
+                            <content>
+                                <VBox spacing="12">
+                                    <padding><Insets top="15" right="18" bottom="15" left="18"/></padding>
+
+                                    <Label text="Analysis Configuration" styleClass="section-title"/>
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="Profile:"/>
+                                        <ComboBox fx:id="profileComboBox" prefWidth="200"/>
+                                    </HBox>
+
+                                    <Separator/>
+                                    <Label text="Evaluation Criteria" styleClass="section-title"/>
+                                    <CheckBox fx:id="architectureCheckBox" text="Architecture"/>
+                                    <CheckBox fx:id="solidCheckBox" text="SOLID principles"/>
+                                    <CheckBox fx:id="testingCheckBox" text="Testing"/>
+
+                                    <Separator/>
+                                    <Button fx:id="analyzeButton"
+                                            text="Start Analysis"
+                                            onAction="#handleStartAnalysis"
+                                            styleClass="primary-button"
+                                            maxWidth="Infinity"/>
+
+                                    <Label text="Progress" styleClass="section-title"/>
+                                    <ProgressBar fx:id="progressBar" prefWidth="500" maxWidth="Infinity" progress="0"/>
+                                    <Label fx:id="progressLabel" text="Ready" styleClass="muted-label"/>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                    </items>
+                </SplitPane>
+            </Tab>
+
+            <Tab fx:id="resultsTab" text="Results">
+                <BorderPane>
+                    <top>
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <padding><Insets top="14" right="16" bottom="10" left="16"/></padding>
+                            <Label text="Analysis Results" styleClass="section-title"/>
+                            <Pane HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="overallScoreLabel" text="Overall score: —" styleClass="score-label"/>
+                        </HBox>
+                    </top>
+
+                    <center>
+                        <SplitPane dividerPositions="0.50">
+                            <items>
+                                <VBox spacing="8">
+                                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                    <TableView fx:id="resultsTable" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="criterionColumn" text="Criterion" prefWidth="220"/>
+                                            <TableColumn fx:id="scoreColumn" text="Score" prefWidth="100"/>
+                                            <TableColumn fx:id="resultStatusColumn" text="Status" prefWidth="120"/>
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+
+                                <VBox spacing="8">
+                                    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                    <Label text="Details" styleClass="section-title"/>
+                                    <TextArea fx:id="resultDetailsArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                            </items>
+                        </SplitPane>
+                    </center>
+
+                    <bottom>
+                        <HBox alignment="CENTER_RIGHT">
+                            <padding><Insets top="10" right="16" bottom="16" left="16"/></padding>
+                            <Button fx:id="reportButton"
+                                    text="Generate LaTeX Report"
+                                    onAction="#handleGenerateReport"
+                                    styleClass="primary-button"/>
+                        </HBox>
+                    </bottom>
+                </BorderPane>
+            </Tab>
+
+            <Tab text="History">
+                <VBox spacing="10">
+                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                    <Label text="Analysis History" styleClass="section-title"/>
+                    <TableView fx:id="historyTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="historyProjectColumn" text="Project" prefWidth="260"/>
+                            <TableColumn fx:id="historyDateColumn" text="Date" prefWidth="180"/>
+                            <TableColumn fx:id="historyScoreColumn" text="Score" prefWidth="120"/>
+                            <TableColumn fx:id="historyModelColumn" text="Model" prefWidth="220"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+    <bottom>
+        <HBox styleClass="status-bar">
+            <padding><Insets top="8" right="15" bottom="8" left="15"/></padding>
+            <Label fx:id="statusLabel" text="Ready"/>
+        </HBox>
+    </bottom>
+</BorderPane>

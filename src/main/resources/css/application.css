@@ -1,0 +1,43 @@
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+}
+
+.title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.score-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.muted-label {
+    -fx-opacity: 0.75;
+}
+
+.primary-button {
+    -fx-font-weight: bold;
+    -fx-padding: 9 16 9 16;
+}
+
+.top-area {
+    -fx-spacing: 8;
+}
+
+.status-bar {
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: derive(-fx-base, -15%);
+}
+
+.tree-view,
+.table-view,
+.text-area {
+    -fx-background-insets: 0;
+}
