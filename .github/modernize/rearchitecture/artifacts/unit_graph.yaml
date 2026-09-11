@@ -1,0 +1,39 @@
+units:
+  - name: javafx-main-window
+    trigger: page
+    trigger_detail: "JavaFX application window loaded from /fxml/main-view.fxml"
+    source_anchors:
+      - path: src/main/java/ma/uae/aireviewer/ui/AiReviewerApplication.java
+        line: 29
+      - path: src/main/java/ma/uae/aireviewer/ui/controller/MainController.java
+        line: 47
+      - path: src/main/resources/fxml/main-view.fxml
+        line: 7
+    exported_signature:
+      - method: "void AiReviewerApplication.start(Stage)"
+        source_loc: "src/main/java/ma/uae/aireviewer/ui/AiReviewerApplication.java:29"
+        stability: must_preserve
+    dynamic_entrypoints:
+      - target: "ma.uae.aireviewer.ui.controller.MainController"
+        mechanism: fxml
+        source_loc: "src/main/resources/fxml/main-view.fxml:7"
+    depends_on: []
+    shared_refs:
+      - module: evaluation-service
+        used_fields: [loadProject, evaluate, generateReport, getModel]
+
+  - name: launcher
+    trigger: cli
+    trigger_detail: "JVM main(String[]) entry point"
+    source_anchors:
+      - path: src/main/java/ma/uae/aireviewer/Launcher.java
+        line: 10
+    exported_signature:
+      - method: "void Launcher.main(String[])"
+        source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:10"
+        stability: must_preserve
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: javafx-main-window
+        via: "Application.launch(MainApp.class, args)"
+    shared_refs: []

@@ -1,0 +1,83 @@
+# Profil de criteres. Ajouter un critere = ajouter une entree ici (+ un Analyzer si DETERMINISTIC).
+name: default
+criteria:
+  - id: project-organization
+    label: Organisation du projet
+    maxScore: 10
+    weight: 1.0
+    kind: DETERMINISTIC
+  - id: architecture-quality
+    label: Qualite de l'architecture
+    maxScore: 10
+    weight: 2.0
+    kind: LLM
+  - id: readability
+    label: Lisibilite du code
+    maxScore: 10
+    weight: 1.0
+    kind: LLM
+  - id: modularity
+    label: Modularite
+    maxScore: 10
+    weight: 1.5
+    kind: LLM
+  - id: coupling
+    label: Couplage entre composants
+    maxScore: 10
+    weight: 1.5
+    kind: HYBRID
+  - id: cohesion
+    label: Cohesion
+    maxScore: 10
+    weight: 1.0
+    kind: LLM
+  - id: tests-presence
+    label: Presence de tests
+    maxScore: 10
+    weight: 1.5
+    kind: DETERMINISTIC
+  - id: exception-handling
+    label: Gestion des exceptions
+    maxScore: 10
+    weight: 1.0
+    kind: LLM
+  - id: code-duplication
+    label: Duplication de code
+    maxScore: 10
+    weight: 1.0
+    kind: DETERMINISTIC
+  - id: documentation
+    label: Documentation
+    maxScore: 10
+    weight: 1.0
+    kind: HYBRID
+  - id: solid-compliance
+    label: Respect des principes SOLID
+    maxScore: 10
+    weight: 1.5
+    kind: LLM
+  - id: design-patterns
+    label: Pertinence des Design Patterns
+    maxScore: 10
+    weight: 1.5
+    kind: LLM
+  - id: maintainability
+    label: Maintenabilite
+    maxScore: 10
+    weight: 1.0
+    kind: LLM
+  - id: extensibility
+    label: Extensibilite
+    maxScore: 10
+    weight: 1.0
+    kind: LLM
+  - id: security
+    label: Securite
+    maxScore: 10
+    weight: 1.5
+    kind: LLM
+  - id: docker-quality
+    label: Qualite du Dockerfile / deploiement
+    maxScore: 10
+    weight: 1.0
+    kind: DETERMINISTIC

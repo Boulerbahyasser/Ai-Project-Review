@@ -1,0 +1,19 @@
+unit: launcher
+side_effects:
+  - source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:12"
+    effect: "Starts JavaFX application dispatch."
+    must_preserve: true
+branches: []
+error_paths:
+  - source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:3"
+    trigger: "Referenced MainApp class does not exist in the source tree."
+    outcome: "Compilation fails if Launcher is included in the Maven source set."
+    contract: "Build must resolve the JavaFX application class."
+    must_preserve: true
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:12"
+    scope: "JavaFX application lifecycle"
+    isolation: "JavaFX Application Thread"
+    must_preserve: true

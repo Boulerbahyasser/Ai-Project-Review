@@ -1,0 +1,73 @@
+# Configuration de l'application. AUCUNE CLE D'API ICI (cf. cahier des charges, section 17).
+# Les secrets sont lus dans les variables d'environnement via EnvironmentSecretProvider.
+
+llm:
+  providerId: local            # local | mistral | deepseek
+  model: qwen2.5-coder:7b
+  baseUrl: http://localhost:1234/v1
+  apiKeyEnvVar: LLM_API_KEY    # nom de la variable d'env, pas la valeur
+  timeoutSeconds: 60
+  maxRetries: 1                # 1 = aucune reprise ; passer a 3 quand RetryingLlmProvider sera implemente
+  maxOutputTokens: 2048
+  temperature: 0.1
+  maxCharsPerRequest: 40000
+  maxFilesPerRequest: 12
+  cacheEnabled: false          # remettre a true quand CachingLlmProvider sera implemente
+  fallbackProviderId: null
+
+analysis:
+  criteriaProfile: default
+  maxFileSizeKb: 256
+  includeGlobs:
+    - "**/*.java"
+    - "**/pom.xml"
+    - "**/build.gradle*"
+    - "**/Dockerfile*"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.properties"
+  excludeGlobs:
+    - "**/target/**"
+    - "**/build/**"
+    - "**/.git/**"
+    - "**/node_modules/**"
+    - "**/*.jar"
+    - "**/*.png"
+
+sandbox:
+  executionEnabled: false      # execution du projet analyse : desactivee par defaut
+  dockerImage: ai-reviewer/sandbox:latest
+  cpuLimit: 1.0
+  memoryLimit: 512m
+  pidsLimit: 128
+  timeoutSeconds: 60
+  networkDisabled: true
+  readOnlyRootFs: true
+  user: "1000:1000"
+
+unzip:
+  dockerImage: ai-reviewer/unzip:latest
+  memoryLimit: 256m
+  pidsLimit: 64
+  timeoutSeconds: 30
+  user: "1000:1000"
+  maxExtractedSizeMb: 200      # taille decompressee maximale : protection bombe zip
+  maxEntryCount: 5000          # nombre de fichiers maximal accepte dans l'archive
+
+latex:
+  dockerImage: ai-reviewer/latex:latest
+  memoryLimit: 512m
+  pidsLimit: 128
+  timeoutSeconds: 120
+  user: "1000:1000"
+
+report:
+  outputDirectory: out/reports
+  renderer: latex              # latex | html
+  compilePdf: false
+  latexDockerImage: ai-reviewer/latex:latest
+
+persistence:
+  historyDirectory: out/history
+  cacheDirectory: out/cache

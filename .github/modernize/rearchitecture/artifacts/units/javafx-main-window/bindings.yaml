@@ -1,0 +1,27 @@
+unit: javafx-main-window
+bindings:
+  - type: fxml
+    name: "fx:controller=ma.uae.aireviewer.ui.controller.MainController"
+    source_loc: "src/main/resources/fxml/main-view.fxml:7"
+    target: "MainController"
+    must_appear_in_target: true
+    notes: "FXML reflection requires a public controller and matching injected fields."
+  - type: route-declaration
+    name: "onAction handlers"
+    source_loc: "src/main/resources/fxml/main-view.fxml:20"
+    target: "handleSelectProject, handleStartAnalysis, handleGenerateReport"
+    must_appear_in_target: true
+    notes: "Handler names are part of the FXML contract."
+runtime_config:
+  - key: "aireviewer.provider"
+    source_loc: "src/main/java/ma/uae/aireviewer/ui/AiReviewerApplication.java:55"
+    source: env
+    default_value: "mock"
+    must_appear_in_target: true
+    notes: "System property selects mock or Ollama provider; outside the LLM subtree this is an integration seam."
+  - key: "out/reports"
+    source_loc: "src/main/java/ma/uae/aireviewer/ui/AiReviewerApplication.java:27"
+    source: code
+    default_value: "out/reports"
+    must_appear_in_target: true
+    notes: "Relative report output directory."

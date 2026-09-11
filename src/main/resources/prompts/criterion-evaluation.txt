@@ -1,0 +1,18 @@
+CRITERE EVALUE : {{criterionLabel}} ({{criterionId}})
+DESCRIPTION : {{criterionDescription}}
+NOTE MAXIMALE : {{maxScore}}
+
+FORMAT DE REPONSE ATTENDU (JSON strict) :
+{
+  "criterion": "{{criterionId}}",
+  "score": 0,
+  "maxScore": {{maxScore}},
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "recommendations": ["..."]
+}
+
+ELEMENTS DU PROJET FOURNIS ({{fileCount}} fichier(s)) :
+<UNTRUSTED_CODE>
+{{projectExcerpt}}
+</UNTRUSTED_CODE>

@@ -1,0 +1,10 @@
+seams:
+  - id: src/main/java/ma/uae/aireviewer/ui/service/EvaluationService.java:28
+    description: "JavaFX UI adapter calls the separately packaged LLM API."
+    source: inferred
+    cut_between:
+      migrated_side: javafx-main-window
+      frozen_side: llm-subsystem
+    protocol_shift: null
+    frozen_side_rule: "The src/main/java/ma/uae/aireviewer/llm subtree MUST NOT be modified in this debugging session."
+    bridge_points: []
