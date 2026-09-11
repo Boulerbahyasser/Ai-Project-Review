@@ -8,6 +8,7 @@ public final class MaxSizeSelectionStrategy implements FileSelectionStrategy {
     private final long maxSizeInBytes;
 
     public MaxSizeSelectionStrategy(long maxSizeInBytes) {
+        if (maxSizeInBytes < 0) throw new IllegalArgumentException("Taille maximale negative");
         this.maxSizeInBytes = maxSizeInBytes;
     }
 

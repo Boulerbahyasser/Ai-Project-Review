@@ -24,6 +24,14 @@ public final class TestPresenceAnalyzer extends AbstractAnalyzer {
 
     @Override
     protected CriterionResult evaluate(AnalysisContext context, List<FileNode> files) {
-        throw new UnsupportedOperationException("TODO : calculer le ratio tests/sources et le convertir en score");
+        long tests = files.stream().filter(file -> file.type() == FileType.TEST).count();
+        long sources = files.stream().filter(file -> file.type() == FileType.JAVA).count();
+        double ratio = sources == 0 ? (tests > 0 ? 1 : 0) : (double) tests / sources;
+        int score = (int) Math.round(Math.min(1.0, ratio) * criterion().maxScore());
+        return new CriterionResult(criterion().id(), score, criterion().maxScore(),
+                tests > 0 ? List.of("Des fichiers de test sont presents") : List.of(),
+                tests == 0 ? List.of("Aucun fichier de test reconnu") : List.of(),
+                tests == 0 ? List.of("Ajouter des tests unitaires et d'integration") : List.of(),
+                ma.uae.aireviewer.analysis.result.ResultStatus.COMPLETED, null);
     }
 }

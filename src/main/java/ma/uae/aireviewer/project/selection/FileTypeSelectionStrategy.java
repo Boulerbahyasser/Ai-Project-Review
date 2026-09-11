@@ -11,7 +11,8 @@ public final class FileTypeSelectionStrategy implements FileSelectionStrategy {
     private final Set<FileType> accepted;
 
     public FileTypeSelectionStrategy(Set<FileType> accepted) {
-        this.accepted = EnumSet.copyOf(accepted);
+        this.accepted = accepted == null || accepted.isEmpty()
+                ? EnumSet.noneOf(FileType.class) : EnumSet.copyOf(accepted);
     }
 
     @Override

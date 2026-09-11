@@ -1,0 +1,29 @@
+flows:
+  - name: selected-project-to-analysis-task
+    medium: static
+    key: currentProject
+    writer:
+      unit: javafx-main-window
+      source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:132"
+    reader:
+      unit: javafx-main-window
+      source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:145"
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "Select a directory, start analysis, and verify the task uses the selected snapshot."
+    notes: "The background Task closes over mutable controller state; repeated actions must not mix project snapshots."
+  - name: evaluation-result-to-report
+    medium: static
+    key: currentResult
+    writer:
+      unit: javafx-main-window
+      source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:181"
+    reader:
+      unit: javafx-main-window
+      source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:205"
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "Generate a report only after a successful analysis and verify it uses the displayed result."
+    notes: "Report button state is derived from currentResult and task completion."

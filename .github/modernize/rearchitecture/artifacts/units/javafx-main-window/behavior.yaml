@@ -1,0 +1,42 @@
+unit: javafx-main-window
+side_effects:
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:119"
+    effect: "Loads the selected directory and replaces the project tree."
+    must_preserve: true
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:175"
+    effect: "Adds a completed evaluation to in-memory history and updates the results tab."
+    must_preserve: true
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:205"
+    effect: "Writes a LaTeX report through EvaluationService."
+    must_preserve: true
+branches:
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:111"
+    condition: "DirectoryChooser returns null"
+    behavior: "Cancel import without changing the current project."
+    must_preserve: true
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:139"
+    condition: "No criteria are selected"
+    behavior: "Show an error dialog and do not start a worker task."
+    must_preserve: true
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:181"
+    condition: "Analysis task succeeds or fails"
+    behavior: "Update controls, progress, status, and error dialog on the JavaFX thread."
+    must_preserve: true
+error_paths:
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:188"
+    trigger: "Evaluation task throws"
+    outcome: "Restore controls and show the task exception message."
+    contract: "User-visible error dialog; no result is published."
+    must_preserve: true
+  - source_loc: "src/main/java/ma/uae/aireviewer/ui/service/EvaluationService.java:52"
+    trigger: "Selected path is null, not a directory, or contains no Java files"
+    outcome: "Reject import with an explanatory runtime exception."
+    contract: "Import action catches and displays the message."
+    must_preserve: true
+concurrency:
+  model: thread-pool
+  tx_boundary:
+    source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:194"
+    scope: "EvaluationService.evaluate runs on a daemon worker; JavaFX callbacks update controls."
+    isolation: "JavaFX Application Thread for UI state"
+    must_preserve: true

@@ -1,0 +1,51 @@
+contracts:
+  - name: javafx-fxml-controller-wiring
+    unit: javafx-main-window
+    type: file
+    stability: frozen
+    source_loc: "src/main/resources/fxml/main-view.fxml:7"
+    contract:
+      method: "FXML loader"
+      path: "/fxml/main-view.fxml"
+      request: "FXML fx:controller and onAction method names"
+      response: "MainController instance with injected fx:id fields"
+      error: "FXML loading failure prevents application startup"
+      auth: "none"
+    target_contract:
+      method: "MainController with all referenced @FXML fields and handlers"
+      notes: "Every fx:id and onAction in the FXML must resolve without reflection errors."
+    semantic_divergence: []
+
+  - name: maven-runtime-entrypoint
+    unit: launcher
+    type: file
+    stability: frozen
+    source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:10"
+    contract:
+      method: "public static void main(String[])"
+      path: "JVM process entry point"
+      request: "command-line arguments"
+      response: "JavaFX application startup"
+      error: "NoClassDefFoundError or compile failure if MainApp is absent"
+      auth: "none"
+    target_contract:
+      method: "Application.launch(AiReviewerApplication.class, args)"
+      notes: "The referenced application class must match the actual JavaFX class."
+    semantic_divergence: []
+
+  - name: maven-source-selection
+    unit: global
+    type: file
+    stability: frozen
+    source_loc: "pom.xml:77"
+    contract:
+      method: "maven-compiler-plugin includes"
+      path: "pom.xml"
+      request: "source files matching configured include patterns"
+      response: "compiled classes"
+      error: "Excluded packages can retain uncompilable TODO code unnoticed"
+      auth: "none"
+    target_contract:
+      method: "Compiler configuration must represent the intended application boundary"
+      notes: "Current includes compile only LLM and UI packages."
+    semantic_divergence: []

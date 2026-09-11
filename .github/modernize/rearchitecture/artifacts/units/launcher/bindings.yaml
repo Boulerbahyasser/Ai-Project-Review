@@ -1,0 +1,9 @@
+unit: launcher
+bindings:
+  - type: convention
+    name: "public static void main(String[])"
+    source_loc: "src/main/java/ma/uae/aireviewer/Launcher.java:10"
+    target: "Launcher.main"
+    must_appear_in_target: true
+    notes: "JVM entry point."
+runtime_config: []

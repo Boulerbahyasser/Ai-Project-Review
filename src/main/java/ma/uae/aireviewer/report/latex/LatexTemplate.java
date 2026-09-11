@@ -6,6 +6,12 @@ import java.util.Map;
 public record LatexTemplate(String content) {
 
     public String render(Map<String, String> variables) {
-        throw new UnsupportedOperationException("TODO : substituer {{cle}}");
+        String rendered = content == null ? "" : content;
+        if (variables == null) return rendered;
+        for (var entry : variables.entrySet()) {
+            rendered = rendered.replace("{{" + entry.getKey() + "}}",
+                    entry.getValue() == null ? "" : entry.getValue());
+        }
+        return rendered;
     }
 }

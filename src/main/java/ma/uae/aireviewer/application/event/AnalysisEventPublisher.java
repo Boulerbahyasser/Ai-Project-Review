@@ -9,7 +9,7 @@ public final class AnalysisEventPublisher {
     private final List<AnalysisListener> listeners = new CopyOnWriteArrayList<>();
 
     public void subscribe(AnalysisListener listener) {
-        listeners.add(listener);
+        if (listener != null && !listeners.contains(listener)) listeners.add(listener);
     }
 
     public void unsubscribe(AnalysisListener listener) {

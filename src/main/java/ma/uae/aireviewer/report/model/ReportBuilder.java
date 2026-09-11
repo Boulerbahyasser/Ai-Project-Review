@@ -22,7 +22,14 @@ public final class ReportBuilder {
     }
 
     public ReportBuilder section(ReportSection section) {
+        if (section == null) throw new IllegalArgumentException("section ne peut pas etre nulle");
         this.sections.add(section);
+        return this;
+    }
+
+    public ReportBuilder sections(List<ReportSection> sections) {
+        this.sections.clear();
+        if (sections != null) this.sections.addAll(sections);
         return this;
     }
 
@@ -32,6 +39,8 @@ public final class ReportBuilder {
     }
 
     public EvaluationReport build() {
-        throw new UnsupportedOperationException("TODO : verifier les champs obligatoires");
+        if (header == null) throw new IllegalStateException("header est obligatoire");
+        if (scoreTable == null) throw new IllegalStateException("scoreTable est obligatoire");
+        return new EvaluationReport(header, scoreTable, sections, summary == null ? "" : summary);
     }
 }

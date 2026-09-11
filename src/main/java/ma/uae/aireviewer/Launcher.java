@@ -1,6 +1,6 @@
 package ma.uae.aireviewer;
 
-import ma.uae.aireviewer.ui.MainApp;
+import ma.uae.aireviewer.ui.AiReviewerApplication;
 
 /** Lanceur : classe principale du jar, delegue a JavaFX. */
 public final class Launcher {
@@ -9,6 +9,6 @@ public final class Launcher {
     }
 
     public static void main(String[] args) {
-        javafx.application.Application.launch(MainApp.class, args);
+        javafx.application.Application.launch(AiReviewerApplication.class, args);
     }
 }

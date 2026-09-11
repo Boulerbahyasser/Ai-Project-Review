@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>AI Project Reviewer - LLM Subsystem</name>
+    <name>AI Project Reviewer</name>
     <description>
         LLM integration layer for the AI-Assisted Software Project Evaluator.
         Provides provider abstraction, prompt construction, JSON parsing, and resilience.
@@ -22,6 +22,7 @@
         <jackson.version>2.17.1</jackson.version>
         <junit.version>5.10.3</junit.version>
         <javafx.version>21.0.4</javafx.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
     </properties>
 
     <dependencies>
@@ -29,6 +30,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
@@ -40,6 +46,11 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
         </dependency>
 
         <!-- JUnit 5 API -->
@@ -68,8 +79,7 @@
     </dependencies>
 
     <build>
-        <!-- Le code du sous-systeme LLM et ses tests restent a leur emplacement. -->
-        <sourceDirectory>src/main/java/ma/uae/aireviewer/llm/src/main/java</sourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/main/java/ma/uae/aireviewer/llm/src/test/java</testSourceDirectory>
         <plugins>
             <!--
@@ -85,12 +95,12 @@
                 <version>3.6.0</version>
                 <executions>
                     <execution>
-                        <id>add-ui-sources</id>
+                        <id>add-llm-sources</id>
                         <phase>generate-sources</phase>
                         <goals><goal>add-source</goal></goals>
                         <configuration>
                             <sources>
-                                <source>src/main/java</source>
+                                <source>src/main/java/ma/uae/aireviewer/llm/src/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -108,10 +118,10 @@
                 <version>3.13.0</version>
                 <configuration>
                     <release>21</release>
-                    <includes>
-                        <include>com/aireview/llm/**/*.java</include>
-                        <include>ma/uae/aireviewer/ui/**/*.java</include>
-                    </includes>
+                    <excludes>
+                        <exclude>ma/uae/aireviewer/llm/src/**</exclude>
+                        <exclude>ma/uae/aireviewer/analysis/analyzer/ai/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <!-- exec-maven-plugin: run LLMVisualTest from the command line -->

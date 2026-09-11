@@ -1,0 +1,34 @@
+modules:
+  - name: evaluation-service
+    kind: service
+    source_loc: "src/main/java/ma/uae/aireviewer/ui/service/EvaluationService.java:28"
+    used_by_units: [javafx-main-window]
+    fields:
+      - name: loadProject
+        type: "ProjectSnapshot loadProject(Path)"
+      - name: evaluate
+        type: "EvaluationResult evaluate(ProjectSnapshot,List<EvaluationCriterion>,ProgressCallback)"
+      - name: generateReport
+        type: "Path generateReport(EvaluationResult)"
+      - name: getModel
+        type: "String getModel()"
+    god_class: false
+    split_candidate: false
+    migration_strategy: wrap
+    notes: "UI-facing adapter currently couples JavaFX flow directly to the LLM package; LLM code is outside this debugging scope."
+
+  - name: main-controller
+    kind: god-class
+    source_loc: "src/main/java/ma/uae/aireviewer/ui/controller/MainController.java:47"
+    used_by_units: [javafx-main-window]
+    fields:
+      - name: handleSelectProject
+        type: "void handleSelectProject()"
+      - name: handleStartAnalysis
+        type: "void handleStartAnalysis()"
+      - name: handleGenerateReport
+        type: "void handleGenerateReport()"
+    god_class: true
+    split_candidate: true
+    migration_strategy: split
+    notes: "FXML event wiring, task lifecycle, presentation mapping, and report actions are concentrated in one controller."

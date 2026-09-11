@@ -1,0 +1,27 @@
+user_intent:
+  raw_request: "Analyze the JavaFX AI project reviewer; do not touch LLM code; identify conflicts and errors."
+  inferred_acceptance:
+    - "Produce source-anchored architecture and conflict analysis."
+    - "Keep src/main/java/ma/uae/aireviewer/llm unchanged."
+  cleanup_required: false
+strategy: minimal_runtime
+runtime_reachable:
+  - src/main/java/ma/uae/aireviewer/ui/AiReviewerApplication.java
+  - src/main/java/ma/uae/aireviewer/ui/controller/MainController.java
+  - src/main/resources/fxml/main-view.fxml
+  - src/main/resources/css/application.css
+must_rewrite: []
+copy_as_is:
+  - src/main/java/ma/uae/aireviewer/llm
+legacy_allowed_to_remain:
+  - src/main/java/ma/uae/aireviewer/application
+  - src/main/java/ma/uae/aireviewer/analysis
+  - src/main/java/ma/uae/aireviewer/project
+  - src/main/java/ma/uae/aireviewer/report
+  - src/main/java/ma/uae/aireviewer/persistence
+  - src/main/java/ma/uae/aireviewer/configuration
+  - src/main/java/ma/uae/aireviewer/security
+defer_cleanup:
+  - "Resolve non-LLM stubs and wiring only after the LLM boundary is explicitly preserved."
+full_rewrite_reason: null
+implementation_rule: "This session is analysis-only; do not modify the LLM subtree."

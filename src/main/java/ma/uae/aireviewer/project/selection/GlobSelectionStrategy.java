@@ -1,6 +1,9 @@
 package ma.uae.aireviewer.project.selection;
 
 import java.util.List;
+import java.nio.file.FileSystems;
+import java.nio.file.PathMatcher;
+import java.nio.file.Path;
 import ma.uae.aireviewer.project.model.FileNode;
 
 /** Selection par motifs glob d'inclusion et d'exclusion. */
@@ -21,6 +24,24 @@ public final class GlobSelectionStrategy implements FileSelectionStrategy {
 
     @Override
     public boolean accepts(FileNode file) {
-        throw new UnsupportedOperationException("TODO : evaluer les PathMatcher d'inclusion puis d'exclusion");
+        String value = file.path().toString().replace('\\', '/');
+        String name = file.name();
+        boolean included = includeGlobs.isEmpty() || includeGlobs.stream()
+                .map(this::matcher)
+                .anyMatch(matcher -> matcher.matches(file.path())
+                        || matcher.matches(Path.of(value))
+                        || matcher.matches(Path.of(name)));
+        boolean excluded = excludeGlobs.stream()
+                .map(this::matcher)
+                .anyMatch(matcher -> matcher.matches(file.path())
+                        || matcher.matches(Path.of(value))
+                        || matcher.matches(Path.of(name)));
+        return included && !excluded;
+    }
+
+    private PathMatcher matcher(String glob) {
+        String normalized = glob.replace('\\', '/');
+        return FileSystems.getDefault().getPathMatcher(
+                normalized.startsWith("glob:") ? normalized : "glob:" + normalized);
     }
 }
