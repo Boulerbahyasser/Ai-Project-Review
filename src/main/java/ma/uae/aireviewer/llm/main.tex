@@ -1082,4 +1082,198 @@ the main source set (\texttt{src/main/java}) and exits cleanly after both evalua
 This confirms the LLM subsystem is independently deployable and testable without the
 graphical project-reviewer shell.
 
+% ============================================================
+% TASK 8: LaTeX Report Generator
+% ============================================================
+\section{Task 8: LaTeX Report Generator}
+\label{sec:task8}
+
+\subsection{Overview}
+
+Task 8 closes the LLM subsystem by producing a tangible, printable artefact from every
+evaluation session.
+\texttt{LatexReportBuilder} consumes an \texttt{EvaluationResult} (the domain object
+produced by \texttt{ResilientEvaluator}) and generates a fully self-contained
+\LaTeX\ document (\texttt{.tex}) that can be compiled directly with \texttt{pdflatex}
+without any additional style files or manually maintained templates.
+
+A critical architectural principle governs the design: \emph{the evaluation pipeline
+is completely unaware of \LaTeX}.
+\texttt{ResilientEvaluator}, \texttt{ChunkedEvaluator}, and all other evaluation classes
+deal exclusively in Java objects.
+The formatting concern is isolated to a single class, adhering to the
+\emph{Single Responsibility} and \emph{Open/Closed} Principles.
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+LLMProvider -> ResilientEvaluator -> EvaluationResult
+                                            |
+                                   LatexReportBuilder   <- LaTeX only here
+                                            |
+                                      evaluation.tex
+\end{verbatim}
+\caption{Data-flow showing strict separation between evaluation and rendering.}
+\label{fig:task8-dataflow}
+\end{figure}
+
+\subsection{Design Patterns Applied}
+
+\subsubsection{Builder Pattern — \texttt{LatexReportBuilder}}
+
+\texttt{LatexReportBuilder} applies the \textbf{Builder} pattern via a static factory
+entry point and a fluent setter API:
+
+\begin{lstlisting}[caption={Fluent Builder API (Builder pattern)},
+                   label={lst:latexbuilder}]
+Path out = LatexReportBuilder.forResult(evaluationResult)
+        .withModel("gemma2:2b")
+        .withAnalysisDate("September 11, 2026")
+        .withOutputPath(Path.of("evaluation.tex"))
+        .buildAndWrite();
+\end{lstlisting}
+
+The three optional parameters (model name, analysis date, output path) each have
+sensible defaults so callers only specify what they care about.
+Critically, \texttt{build()} assembles the document string in memory while
+\texttt{buildAndWrite()} adds the I/O step, allowing unit tests to call
+\texttt{build()} with zero filesystem side-effects.
+
+\subsubsection{Strategy Pattern — Rendering as a Replaceable Strategy}
+
+\texttt{LLMVisualTest} treats document generation as a replaceable rendering strategy:
+the \texttt{generateReport()} helper accepts any \texttt{EvaluationResult} and can be
+swapped for an HTML or JSON renderer without touching the evaluation logic, because the
+two components are coupled only through the plain Java domain object.
+
+\subsection{LaTeX Security — Character Escaping}
+
+Every string that originates from LLM output (criterion names, feedback narratives,
+issue strings) or from untrusted caller data (project name, model identifier) is routed
+through the package-private \texttt{LatexReportBuilder.escape()} method before being
+embedded in the generated document.
+
+Without this guard, a response containing \texttt{\_}, \texttt{\%}, or \texttt{\textbackslash}
+would either break \texttt{pdflatex} compilation or — in adversarial cases —
+silently alter the rendered output.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Raw input character} & \textbf{LaTeX-safe replacement} \\
+\midrule
+\texttt{\textbackslash}            & \texttt{\textbackslash textbackslash\{\}} \\
+\texttt{\&}                        & \texttt{\textbackslash\&} \\
+\texttt{\%}                        & \texttt{\textbackslash\%} \\
+\texttt{\$}                        & \texttt{\textbackslash\$} \\
+\texttt{\#}                        & \texttt{\textbackslash\#} \\
+\texttt{\_}                        & \texttt{\textbackslash\_} \\
+\texttt{\{} / \texttt{\}}          & \texttt{\textbackslash\{} / \texttt{\textbackslash\}} \\
+\texttt{\^{}}                      & \texttt{\textbackslash textasciicircum\{\}} \\
+\texttt{\~{}}                      & \texttt{\textbackslash textasciitilde\{\}} \\
+\texttt{<} / \texttt{>}            & \texttt{\textbackslash textless\{\}} / \texttt{\textbackslash textgreater\{\}} \\
+\bottomrule
+\end{tabular}
+\caption{\texttt{escape()} character mapping in \texttt{LatexReportBuilder}}
+\label{tab:latex-escaping}
+\end{table}
+
+\paragraph{Sentinel technique for backslash.}
+A naïve two-pass approach would double-escape backslashes: replacing
+\texttt{\textbackslash} with \texttt{\textbackslash textbackslash\{\}} and then escaping the
+newly introduced braces in a subsequent pass.
+To prevent this, \texttt{escape()} uses a NUL-delimited sentinel
+(\texttt{\textbackslash u0000BACKSLASH\textbackslash u0000}) as a placeholder during
+step one.
+All other special characters are escaped in step two.
+The sentinel is resolved to
+\texttt{\textbackslash textbackslash\{\}} in a final pass, after which no further
+substitutions run.
+
+\subsection{Generated Document Structure}
+
+The output \texttt{.tex} file is a complete, self-contained article-class document
+containing four logical sections:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Preamble.} Declares \texttt{booktabs}, \texttt{xcolor},
+          \texttt{enumitem}, \texttt{parskip}, and \texttt{hyperref}, so the file
+          compiles without any external \texttt{.sty} dependencies.
+
+    \item \textbf{Evaluation Metadata.} A two-column table recording the project name,
+          analysis date, model used, total score (with percentage), criteria count, and
+          total wall-clock duration.
+
+    \item \textbf{Score Summary.} A four-column table with one row per criterion:
+          \emph{Criterion}, \emph{Score}, \emph{Maximum}, and \emph{Percentage}.
+          Scores $\ge 70\%$ are rendered in green (\texttt{passgreen});
+          lower scores appear in red (\texttt{warnred}).
+          A \textbf{Total} footer row aggregates all criteria.
+
+    \item \textbf{Detailed Criterion Results.} One \LaTeX\ \texttt{\textbackslash subsection}
+          per criterion, containing the LLM-generated feedback narrative and a bulleted
+          list of identified issues (both fully escaped through \texttt{escape()}).
+\end{enumerate}
+
+\subsection{Integration into the Visual Test Harness}
+
+After Run 2 (well-structured code, all criteria) completes successfully,
+\texttt{LLMVisualTest} automatically invokes \texttt{generateReport()}
+(Listing~\ref{lst:reportintegration}), which writes \texttt{evaluation.tex} to the
+working directory and prints the absolute path and the compile command.
+
+\begin{lstlisting}[caption={Report generation in LLMVisualTest (Strategy pattern)},
+                   label={lst:reportintegration}]
+private static void generateReport(EvaluationResult result) {
+    Path out = Path.of("evaluation.tex");
+    Path written = LatexReportBuilder.forResult(result)
+            .withModel(MODEL)
+            .withOutputPath(out)
+            .buildAndWrite();              // I/O isolated here
+    print("[OK] Report written to: " + written.toAbsolutePath());
+    print("Compile with: pdflatex " + written.getFileName());
+}
+\end{lstlisting}
+
+The design deliberately keeps the evaluation result and the rendering step on
+opposite sides of a thin method boundary so either side can be replaced or tested
+independently.
+The confirmed console output from a live run is shown below:
+
+\begin{verbatim}
+[OK] Report written to: .../SWEProject/evaluation.tex
+     Compile with: pdflatex evaluation.tex
+\end{verbatim}
+
+\subsection{Test Coverage}
+
+\texttt{LatexReportBuilderTest} (JUnit 5, fully hermetic — no network, no Ollama
+process) validates the class through 36 tests organised into four nested test classes:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Escaping (13 tests):} Each special character is covered individually;
+          a combined test asserts that no bare unescaped characters survive in a
+          mixed-input string.  The sentinel-backslash edge-case is tested explicitly.
+
+    \item \textbf{Builder API (7 tests):} Null and blank inputs to each setter are
+          handled gracefully; fluent chaining compiles without error; the default date
+          is the current system date.
+
+    \item \textbf{Document Structure (11 tests):} The generated string contains
+          \texttt{\textbackslash documentclass} and ends with
+          \texttt{\textbackslash end\{document\}}; all required table headers
+          (\emph{Criterion}, \emph{Score}, \emph{Maximum}) are present; the project
+          name, model, and date appear in the output; LLM-sourced feedback with special
+          characters is confirmed to be escaped.
+
+    \item \textbf{File I/O (5 tests):} Using JUnit 5's \texttt{@TempDir}, the tests
+          confirm that \texttt{buildAndWrite()} creates the file, returns the correct
+          path, writes non-empty content, produces output identical to \texttt{build()},
+          and can overwrite an existing file on a second call.
+\end{enumerate}
+
+All 260 tests in the LLM subsystem pass; 1 integration test is intentionally
+\texttt{@Disabled} (requires a live Ollama process).
+
 \end{document}
